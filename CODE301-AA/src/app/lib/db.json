@@ -1,0 +1,14 @@
+{
+  "metrics": [
+    { "id": 1, "userId": 1, "date": "2024-01-01", "sales": 15000, "customers": 20, "affiliates": 5, "expenses": 2000 },
+    { "id": 2, "userId": 1, "date": "2024-01-02", "sales": 15100, "customers": 22, "affiliates": 6, "expenses": 2100 },
+    { "id": 3, "userId": 1, "date": "2024-01-03", "sales": 15050, "customers": 21, "affiliates": 5, "expenses": 2050 },
+    { "id": 4, "userId": 1, "date": "2024-01-04", "sales": 15000, "customers": 20, "affiliates": 5, "expenses": 2000 },
+    { "id": 5, "userId": 1, "date": "2024-01-05", "sales": 14950, "customers": 19, "affiliates": 4, "expenses": 1950 },
+    { "id": 6, "userId": 1, "date": "2024-01-06", "sales": 14900, "customers": 18, "affiliates": 4, "expenses": 1900 },
+    { "id": 7, "userId": 1, "date": "2024-01-07", "sales": 14850, "customers": 17, "affiliates": 3, "expenses": 1850 }
+  ],
+  "observations": [
+    { "id": 1, "userId": 1, "adminName": "Admin", "date": "2024-01-08", "text": "Considere centrarse en el marketing de afiliación para impulsar la adquisición de nuevos clientes." }
+  ]
+}
