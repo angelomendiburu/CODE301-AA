@@ -1,43 +1,62 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
+const data = [
+  { name: "Semana 1", "Tareas Completadas": 10 },
+  { name: "Semana 2", "Tareas Completadas": 15 },
+  { name: "Semana 3", "Tareas Completadas": 12 },
+  { name: "Semana 4", "Tareas Completadas": 20 },
+];
 
 export default function MiProyecto() {
   const { data: session } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!session) {
-      router.push("/");
-    }
-  }, [session, router]);
 
   return (
-    <div className="min-h-screen bg-[#F2F3F5] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
+    <div className="min-h-screen bg-[#F2F3F5] text-[#1E2B3A]">
+      <header className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-3xl font-bold leading-tight">
             Mi Proyecto
           </h1>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Bienvenido a tu área de proyecto en Start UPC
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <div className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
-            <div className="px-4 py-5 sm:px-6">
-              <h2 className="text-lg font-medium text-gray-900">Información del Proyecto</h2>
-            </div>
-            <div className="px-4 py-5 sm:p-6">
-              {/* Aquí irá el contenido del proyecto */}
-              <p className="text-gray-500">Contenido del proyecto en construcción...</p>
-            </div>
+          <div className="flex items-center">
+            <span className="mr-4">Hola, {session?.user?.name}</span>
+            <button
+              onClick={() => signOut()}
+              className="bg-[#ff2d5b] text-white rounded-lg px-4 py-2 hover:bg-[#ff1f4f] transition-colors duration-75"
+            >
+              Cerrar Sesión
+            </button>
           </div>
         </div>
-      </div>
+      </header>
+      <main className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Progreso del Proyecto</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="Tareas Completadas" stroke="#ff2d5b" activeDot={{ r: 8 }} />
+              </LineChart>
+            </responsiveContainer>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
