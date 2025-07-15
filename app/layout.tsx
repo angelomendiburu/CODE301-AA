@@ -1,27 +1,10 @@
 import "../styles/globals.css";
 import { Metadata } from "next";
-import { Providers } from "./providers";
+import { ClientProvider } from "./client-provider";
 
 export const metadata: Metadata = {
-  title: "Start UPC - Incubadora de Negocios",
-  openGraph: {
-    title: "Start UPC - Incubadora de Negocios",
-    description:
-      "Start UPC es una plataforma de incubación de startups peruanas que te ayuda a hacer crecer tu negocio.",
-    images: [
-      {
-        url: "/opengraph-image",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Start UPC - Incubadora de Negocios",
-    description:
-      "Start UPC es una plataforma de incubación de startups peruanas que te ayuda a hacer crecer tu negocio.",
-    images: ["/opengraph-image"],
-  },
-  metadataBase: new URL("http://localhost:3000"),
+  title: "Start UPC",
+  description: "Incubadora de Negocios"
 };
 
 export default function RootLayout({
@@ -30,9 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="scroll-smooth antialiased [font-feature-settings:'ss01']">
-        <Providers>{children}</Providers>
+    <html lang="es" suppressHydrationWarning>
+      <body className="scroll-smooth antialiased" suppressHydrationWarning>
+        <ClientProvider>{children}</ClientProvider>
       </body>
     </html>
   );

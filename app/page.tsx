@@ -1,23 +1,26 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion
-} from "framer-motion";
-import {
-  gradient
-} from "@/components/Gradient";
-import {
-  useEffect,
-  useState
-} from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+
+function AuthStatus() {
+  const { data: session } = useSession();
+  return (
+    <div>
+      {session ? (
+        <p>Welcome {session.user?.name}</p>
+      ) : (
+        <p>Not signed in</p>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
-  const { data: session } = useSession();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  return (
+    <main>
+      <AuthStatus />
+    </main>
+  );
   const [modalType, setModalType] = useState<'signin' | 'signup'>('signin');
 
   useEffect(() => {

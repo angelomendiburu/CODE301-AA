@@ -59,7 +59,7 @@ export default function AdminMetrics() {
                   <Legend />
                   <Line type="monotone" dataKey="Usuarios" stroke="#1E2B3A" activeDot={{ r: 8 }} />
                 </LineChart>
-              </responsiveContainer>
+              </ResponsiveContainer>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Ingresos</h2>

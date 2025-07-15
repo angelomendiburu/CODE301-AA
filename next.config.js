@@ -1,8 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    unoptimized: true,
+  swcMinify: true,
+  experimental: {
+    appDir: true,
+    serverActions: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  webpack: (config) => {
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      tls: false,
+      crypto: false,
+    };
+    return config;
   },
   async headers() {
     return [
