@@ -13,10 +13,9 @@ import {
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { googleSignIn } from "./actions";
 
 export default function Home() {
-  const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'signin' | 'signup'>('signin');
 
@@ -38,7 +37,7 @@ export default function Home() {
     >
       <h2 className="text-2xl font-bold mb-6">Sign In</h2>
       <button
-        onClick={() => signIn('google')}
+        onClick={() => googleSignIn()}
         className="w-full mb-4 flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2 text-gray-700 hover:bg-gray-50 transition-all duration-75"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -124,7 +123,7 @@ export default function Home() {
     >
       <h2 className="text-2xl font-bold mb-6">Create Account</h2>
       <button
-        onClick={() => signIn('google')}
+        onClick={() => googleSignIn()}
         className="w-full mb-6 flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2 text-gray-700 hover:bg-gray-50 transition-all duration-75"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">

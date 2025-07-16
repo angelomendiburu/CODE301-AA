@@ -24,15 +24,20 @@ export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
 };
 
-export default function RootLayout({
+import { auth } from "@/auth";
+import { Session } from "next-auth";
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
+  session: Session;
 }) {
+  const session = await auth();
   return (
     <html lang="es">
       <body className="scroll-smooth antialiased [font-feature-settings:'ss01']">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );
