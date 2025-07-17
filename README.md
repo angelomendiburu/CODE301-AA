@@ -1,85 +1,73 @@
-<a href="https://demo.useliftoff.com">
-  <img alt="Liftoff – AI-Powered Mock Interviews" src="https://demo.useliftoff.com/opengraph-image">
-  <h1 align="center">Liftoff Interviews</h1>
-</a>
+## Instrucciones para Copilot y Desarrolladores
 
-<p align="center">
-  Mock Interview Simulator with AI-Powered Feedback
-</p>
+Este proyecto utiliza Next.js con el App Router, NextAuth.js para la autenticación y Prisma como ORM. A continuación se detallan los pasos para configurar y ejecutar el proyecto, así como una descripción de la estructura del mismo.
 
-<p align="center">
-  <a href="https://twitter.com/tmeyer_me">
-    <img src="https://img.shields.io/twitter/follow/tmeyer_me?style=flat&label=Follow&logo=twitter&color=0bf&logoColor=fff" alt="Tyler Meyer's follower count" />
-  </a>
-  <a href="https://github.com/Tameyer41/liftoff">
-    <img src="https://img.shields.io/github/stars/Tameyer41/liftoff?label=Tameyer41%2Fliftoff" alt="Liftoff repo star count" />
-  </a>
-</p>
+### Configuración del Entorno
 
-<p align="center">
-  <a href="#introduction"><strong>Introduction</strong></a> ·
-  <a href="#one-click-deploy"><strong>One-click Deploy</strong></a> ·
-  <a href="#tech-stack--features"><strong>Tech Stack + Features</strong></a> ·
-  <a href="#author"><strong>Author</strong></a>
-</p>
-<br/>
+1.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
 
-## Introduction
+2.  **Configurar variables de entorno:**
+    Crea un archivo `.env` en la raíz del proyecto y añade las siguientes variables:
 
-Liftoff is an interview preparation tool that provides AI feedback on your mock interviews.
+    ```env
+    # URL de conexión a la base de datos (PostgreSQL)
+    DATABASE_URL="postgresql://user:password@host:port/database"
 
-## One-click Deploy
+    # Clave secreta para NextAuth.js
+    # Puedes generar una con: openssl rand -hex 32
+    NEXTAUTH_SECRET="tu-clave-secreta"
 
-You can deploy this template to Vercel with the button below:
+    # URL de tu aplicación
+    NEXTAUTH_URL="http://localhost:3000"
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/tameyer41/clone?demo-title=Liftoff%20%E2%80%93%C2%A0AI%20Mock%20Interview%20Simulator&demo-description=Liftoff%20is%20an%20interview%20preparation%20tool%20that%20provides%20AI%20feedback%20on%20your%20mock%20interviews%2C%20built%20with%20OpenAI%20Whisper%20and%20GPT.&demo-url=https%3A%2F%2Fdemo.useliftoff.com%2F&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F5TbjLXmeKdo2rURpnjIEqn%2Fc7c8fc350183e8cd3c819d172c0005ac%2F68747470733a2f2f696b2e696d6167656b69742e696f2f396b6d3732617371752f436c65616e53686f745f323032332d30352d33315f61745f31322e34332e35&project-name=Liftoff%20%E2%80%93%C2%A0AI%20Mock%20Interview%20Simulator&repository-name=liftoff&repository-url=https%3A%2F%2Fgithub.com%2FTameyer41%2Fliftoff&from=templates&skippable-integrations=1&env=OPENAI_API_KEY&envDescription=Get%20your%20OpenAI%20API%20key%20here%3A&envLink=https%3A%2F%2Fplatform.openai.com%2Faccount%2Fapi-keys)
+    # Credenciales de Google OAuth para el inicio de sesión
+    GOOGLE_CLIENT_ID="tu-client-id-de-google"
+    GOOGLE_CLIENT_SECRET="tu-client-secret-de-google"
+    ```
 
-You can also clone & create this repo locally with the following command:
+3.  **Aplicar el esquema de la base de datos:**
+    ```bash
+    npx prisma db push
+    ```
+
+### Ejecutar la Aplicación
+
+Para iniciar el servidor de desarrollo, ejecuta:
 
 ```bash
-npx create-next-app liftoff --example "https://github.com/Tameyer41/liftoff"
+npm run dev
 ```
 
-## Tech Stack + Features
+La aplicación estará disponible en `http://localhost:3000`.
 
-![Landing Page](https://ik.imagekit.io/9km72asqu/CleanShot_2023-05-31_at_12.43.54_svKkqF7dA.png?updatedAt=1685551454273)
+### Estructura del Proyecto
 
-![Interview Selection](https://ik.imagekit.io/9km72asqu/CleanShot_2023-05-31_at_13.35.55_xohCRNMlJ.png?updatedAt=1685554576155)
+*   **`app/`**: Contiene las rutas y los componentes de la aplicación, siguiendo la estructura del App Router de Next.js.
+    *   **`app/api/`**: Rutas de la API, incluyendo la ruta de autenticación de NextAuth.js.
+    *   **`app/admin/`**: Rutas y componentes específicos para el panel de administración.
+    *   **`app/mi-proyecto/`**: Rutas y componentes para el panel de usuario.
+    *   **`app/layout.tsx`**: El layout principal de la aplicación.
+    *   **`app/providers.tsx`**: Componente que envuelve la aplicación con los proveedores de contexto (como `SessionProvider` de NextAuth.js).
+*   **`auth.ts`**: Archivo de configuración de NextAuth.js.
+*   **`prisma/`**: Contiene el esquema de la base de datos (`schema.prisma`).
+*   **`components/`**: Componentes reutilizables de la interfaz de usuario.
+*   **`lib/`**: Librerías y utilidades auxiliares.
+*   **`middleware.ts`**: Middleware de Next.js para proteger rutas y gestionar redirecciones.
+*   **`scripts/`**: Scripts útiles para el desarrollo (ej. `make-superadmin.ts`).
 
-### Frameworks
+### Roles de Usuario
 
-- [Next.js](https://nextjs.org/) – React framework for building performant apps with the best developer experience
+El sistema de roles se define en `prisma/schema.prisma` y se utiliza en el middleware y los componentes para controlar el acceso a las diferentes partes de la aplicación.
 
-### Platforms
+*   `user`: Rol por defecto para los nuevos usuarios.
+*   `admin`: Puede acceder al panel de administración.
+*   `superadmin`: Tiene todos los permisos.
 
-- [Vercel](https://vercel.com/) – Easily preview & deploy changes with git
-- [Upstash](https://upstash.com/) - Serverless Data Platform (here using serverless Redis for rate limiting)
+Para asignar un rol de `superadmin` a un usuario, puedes utilizar el siguiente script:
 
-### UI
-
-- [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework for rapid UI development
-- [Framer Motion](https://framer.com/motion) – Motion library for React to animate components with ease
-- [`ImageResponse`](https://beta.nextjs.org/docs/api-reference/image-response) – Generate dynamic Open Graph images at the edge
-- [HeadlessUI](https://headlessui.com/) - Completely unstyled, fully accessible UI components, designed to integrate beautifully with Tailwind CSS
-
-### Code Quality
-
-- [TypeScript](https://www.typescriptlang.org/) – Static type checker for end-to-end typesafety
-- [Prettier](https://prettier.io/) – Opinionated code formatter for consistent code style
-- [ESLint](https://eslint.org/) – Pluggable linter for Next.js and TypeScript
-
-### Miscellaneous
-
-- [FFMPEG.WASM](https://ffmpegwasm.netlify.app/) – Transcode video/audio files
-- [React Webcam](https://github.com/mozmorris/react-webcam) - Webcam component for React
-- [Stripe Gradient Animation](https://whatamesh.vercel.app/) - [@jordienr](https://twitter.com/jordienr) released a Mesh Gradient that uses WebGL and animates a beautiful gradient
-
-## How it all works
-
-Liftoff uses FFmpeg to transcode the raw video into MP3. Chrome, Safari, and Firefox all record with different codecs, and FFmpeg is great for standardizing them.
-
-We then send the audio directly to be transcribed by OpenAI's Whisper endpoint, and then stream feedback from the edge using OpenAI's gpt-3.5-turbo.
-
-## Author
-
-- Tyler Meyer ([@tmeyer_me](https://twitter.com/tmeyer_me))
+```bash
+npx ts-node scripts/make-superadmin.ts
+```

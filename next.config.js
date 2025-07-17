@@ -1,8 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   images: {
     unoptimized: true,
+  },
+  webpack: (config, { isServer }) => {
+    config.resolve.fallback = { fs: false }
+    config.watchOptions = {
+      followSymlinks: true,
+    }
+    return config
   },
   async headers() {
     return [

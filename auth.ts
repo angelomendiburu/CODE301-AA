@@ -1,26 +1,23 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { PrismaAdapter } from "@auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
-import type { User } from "@prisma/client"
+import type { NextAuthConfig } from "next-auth"
 
 const prisma = new PrismaClient()
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+const config = {
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     }),
   ],
-  callbacks: {
-    async session({ session, user }) {
-      if (session?.user) {
-        session.user.id = user.id;
-        session.user.role = (user as User).role;
-      }
-      return session;
-    },
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: '/',
   },
-})
+} satisfies NextAuthConfig
+
+export const { auth, signIn, signOut } = NextAuth(config)

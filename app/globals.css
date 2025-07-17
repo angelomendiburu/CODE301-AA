@@ -1,0 +1,12 @@
+/* Import Tailwind CSS */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom styles */
+#gradient-canvas {
+  --gradient-color-1: #FF007B;
+  --gradient-color-2: #FF6A00;
+  --gradient-color-3: #FF8C00;
+  --gradient-color-4: #FF2D55;
+}

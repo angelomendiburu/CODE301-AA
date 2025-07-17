@@ -1,45 +1,52 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server"
+import { Ratelimit } from "@upstash/ratelimit"
+import { Redis } from "@upstash/redis"
 
-export default async function middleware(
-  request: NextRequest,
-  event: NextFetchEvent
-): Promise<Response | undefined> {
-  const ip = request.ip ?? "127.0.0.1";
-  const { pathname } = request.nextUrl;
+// Initialize rate limiter
+let ratelimit: Ratelimit | null = null
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  ratelimit = new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.cachedFixedWindow(12, `${24 * 60 * 60}s`),
+    ephemeralCache: new Map(),
+    analytics: true,
+  })
+}
 
-  // ratelimit for demo app: https://demo.useliftoff.com/
-  if (
-    process.env.NODE_ENV != "development" &&
-    process.env.UPSTASH_REDIS_REST_URL &&
-    process.env.UPSTASH_REDIS_REST_TOKEN
-  ) {
-    const ratelimit = new Ratelimit({
-      redis: Redis.fromEnv(),
-      // Rate limit to 6 attempts per 2 days
-      limiter: Ratelimit.cachedFixedWindow(12, `${24 * 60 * 60}s`),
-      ephemeralCache: new Map(),
-      analytics: true,
-    });
+// Middleware solo para rate limiting compatible con Edge Runtime
+export default async function middleware(req: NextRequest) {
+  // Obtener la IP de la cabecera x-forwarded-for o usar localhost
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1"
+  const pathname = req.nextUrl.pathname
 
-    const { success, pending, limit, reset, remaining } = await ratelimit.limit(
+  // Rate limiting solo para rutas API si Redis está configurado
+  if (pathname.startsWith("/api/") && ratelimit) {
+    const { success, limit, reset, remaining } = await ratelimit.limit(
       `ratelimit_middleware_${ip}`
-    );
-    event.waitUntil(pending);
+    )
 
-    const res = success
-      ? NextResponse.next()
-      : NextResponse.redirect(new URL("/api/blocked", request.url));
+    if (!success) {
+      return NextResponse.redirect(new URL("/api/blocked", req.url))
+    }
 
-    res.headers.set("X-RateLimit-Limit", limit.toString());
-    res.headers.set("X-RateLimit-Remaining", remaining.toString());
-    res.headers.set("X-RateLimit-Reset", reset.toString());
-    return res;
+    const res = NextResponse.next()
+    res.headers.set("X-RateLimit-Limit", limit.toString())
+    res.headers.set("X-RateLimit-Remaining", remaining.toString())
+    res.headers.set("X-RateLimit-Reset", reset.toString())
+    return res
   }
+
+  // Para otras rutas, solo continuar
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/api/transcribe", "/api/generate"],
-};
+  matcher: [
+    // Auth protection
+    "/admin/:path*",
+    "/mi-proyecto/:path*",
+    // Rate limiting
+    "/api/transcribe",
+    "/api/generate"
+  ]
+}
