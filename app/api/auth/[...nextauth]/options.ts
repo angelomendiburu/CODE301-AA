@@ -70,20 +70,6 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // Obtener la sesión actual
-      const session = await getServerSession(authOptions);
-      
-      // Redirigir según el rol del usuario
-      if (session?.user?.role === 'admin') {
-        return `${baseUrl}/admin/metrics`;
-      } else if (session?.user?.role === 'user') {
-        return `${baseUrl}/mi-proyecto`;
-      }
-      
-      // Si no hay sesión o rol, redirigir a la página principal
-      return baseUrl;
-    }
   },
   pages: {
     signIn: "/",
