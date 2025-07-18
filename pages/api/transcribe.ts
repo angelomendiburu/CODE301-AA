@@ -57,9 +57,17 @@ export default async function handler(req: any, res: any) {
     }
 
     res.status(200).json({ transcript });
-    return resp.data;
   } catch (error) {
     console.error("server error", error);
     res.status(500).json({ error: "Error" });
+  } finally {
+    // Clean up the temporary file
+    if (videoFilePath) {
+      fs.unlink(videoFilePath, (err: any) => {
+        if (err) {
+          console.error("Failed to delete temporary file:", err);
+        }
+      });
+    }
   }
 }

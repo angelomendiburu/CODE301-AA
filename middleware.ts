@@ -10,19 +10,6 @@ export default async function middleware(
   const ip = request.ip ?? "127.0.0.1";
   const { pathname } = request.nextUrl;
 
-  const token = await getToken({ req: request });
-  const { origin } = request.nextUrl;
-
-  if (pathname === '/') {
-    if (token) {
-      if (token.role === 'admin') {
-        return NextResponse.redirect(`${origin}/admin/metrics`);
-      } else if (token.role === 'user') {
-        return NextResponse.redirect(`${origin}/mi-proyecto`);
-      }
-    }
-  }
-
   // ratelimit for demo app: https://demo.useliftoff.com/
   if (
     process.env.NODE_ENV != "development" &&
@@ -54,5 +41,5 @@ export default async function middleware(
 }
 
 export const config = {
-  matcher: ["/", "/api/transcribe", "/api/generate"],
+  matcher: ["/api/transcribe", "/api/generate"],
 };
