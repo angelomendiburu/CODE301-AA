@@ -1,0 +1,606 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import AvatarImage from '@/components/AvatarImage';
+
+interface Observation {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  responses?: {
+    id: string;
+    content: string;
+    createdAt: string;
+    author: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }[];
+}
+
+interface UserMetrics {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  totalMetrics: number;
+  totalSales: number;
+  totalExpenses: number;
+  chartData: {
+    day: string;
+    sales: number;
+    expenses: number;
+  }[];
+}
+
+export default function AdminMetrics() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [usersMetrics, setUsersMetrics] = useState<UserMetrics[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserMetrics | null>(null);
+  const [newObservation, setNewObservation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+
+  // Verificar autorización
+  useEffect(() => {
+    if (session && session.user?.email !== 'angelomendiburu@gmail.com') {
+      router.push('/mi-proyecto');
+    }
+  }, [session, router]);
+
+  const loadObservations = async () => {
+    try {
+      const response = await fetch('/api/observations');
+      if (response.ok) {
+        const data = await response.json();
+        setObservations(data);
+      } else {
+        console.error('Error fetching observations');
+      }
+    } catch (error) {
+      console.error('Error fetching observations:', error);
+    }
+  };
+
+  const loadUsersMetrics = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const response = await fetch('/api/admin/users-metrics');
+      if (response.ok) {
+        const data = await response.json();
+        setUsersMetrics(data.users);
+      } else {
+        console.error('Error fetching users metrics');
+      }
+    } catch (error) {
+      console.error('Error fetching users metrics:', error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (session && session.user?.email === 'angelomendiburu@gmail.com') {
+      loadObservations();
+      loadUsersMetrics();
+    }
+  }, [session]);
+
+  // Enviar nueva observación
+  const handleSendObservation = async () => {
+    if (!newObservation.trim()) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/observations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: newObservation.trim(),
+          targetUserId: selectedUser?.id || null,
+        }),
+      });
+
+      if (response.ok) {
+        const observation = await response.json();
+        setObservations([observation, ...observations]);
+        setNewObservation('');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Error al enviar la observación');
+      }
+    } catch (error) {
+      console.error('Error sending observation:', error);
+      alert('Error al enviar la observación');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!session || session.user?.email !== 'angelomendiburu@gmail.com') {
+    return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirect: false });
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  return (
+    <div className="layout-container flex h-full grow flex-col bg-slate-50">
+      <div className="px-40 flex flex-1 justify-center py-5">
+        <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
+          {/* Header con información del usuario */}
+          <div className="flex flex-wrap justify-between gap-3 p-4">
+            <div className="flex min-w-72 flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-8 w-8"
+                  style={{ backgroundImage: 'url("/placeholders/logo.png")' }}
+                ></div>
+                <div className="flex items-center gap-3">
+                  <svg
+                    className="text-[#141414] h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 48 48"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </div>
+                <h2 className="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em]">Panel de Administrador</h2>
+              </div>
+              <p className="text-neutral-500 text-sm font-normal leading-normal">
+                Gestiona observaciones y visualiza métricas de todos los usuarios
+              </p>
+            </div>
+            
+            {/* Información del usuario y botón de cerrar sesión */}
+            {session && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <AvatarImage
+                    src={session.user?.image}
+                    alt={session.user?.name || 'Usuario'}
+                    size={32}
+                    fallback={session.user?.name?.charAt(0) || 'U'}
+                  />
+                  <div className="flex flex-col">
+                    <p className="text-[#141414] text-sm font-medium">
+                      {session.user?.name || 'Usuario'}
+                    </p>
+                    <p className="text-neutral-500 text-xs">
+                      Admin - {session.user?.email}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center justify-center h-8 px-3 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded-lg transition-colors"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Gráficos generales - Siempre visibles */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+            {/* Total de Ventas */}
+            <div className="flex min-w-72 flex-1 flex-col gap-2 rounded-xl border border-[#dbdbdb] p-6">
+              <p className="text-[#141414] text-base font-medium leading-normal">Total Ventas</p>
+              <p className="text-[#141414] tracking-light text-[32px] font-bold leading-tight truncate">
+                ${usersMetrics.reduce((total, user) => total + user.totalSales, 0).toLocaleString()}
+              </p>
+              <div className="flex gap-1">
+                <p className="text-neutral-500 text-base font-normal leading-normal">Ventas registradas</p>
+                <p className="text-[#078807] text-base font-medium leading-normal">
+                  +${usersMetrics.reduce((total, user) => total + user.totalSales, 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="flex min-h-[180px] items-end justify-between gap-2 px-3">
+                {usersMetrics.length > 0 ? usersMetrics.filter(user => user.totalSales > 0).slice(0, 7).map((user, idx) => {
+                  const maxSales = Math.max(...usersMetrics.map(u => u.totalSales), 1);
+                  const height = Math.max((user.totalSales / maxSales) * 100, 5);
+                  return (
+                    <div key={user.id} className="flex flex-col items-center gap-2 flex-1 h-full">
+                      <div className="flex flex-col justify-end h-full w-full">
+                        <div 
+                          className="bg-blue-500 w-full" 
+                          style={{ height: `${height}%` }}
+                          title={`${user.name}: $${user.totalSales.toLocaleString()}`}
+                        ></div>
+                      </div>
+                      <p className="text-neutral-500 text-[10px] font-bold leading-normal tracking-[0.015em] truncate w-full text-center">
+                        {user.name.split(' ')[0]}
+                      </p>
+                    </div>
+                  );
+                }) : (
+                  <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                    No hay datos de ventas disponibles
+                  </div>
+                )}
+                {usersMetrics.filter(user => user.totalSales > 0).length === 0 && usersMetrics.length > 0 && (
+                  <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                    Los usuarios aún no han registrado ventas
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Total de Métricas */}
+            <div className="flex min-w-72 flex-1 flex-col gap-2 rounded-xl border border-[#dbdbdb] p-6">
+              <p className="text-[#141414] text-base font-medium leading-normal">Total Métricas</p>
+              <p className="text-[#141414] tracking-light text-[32px] font-bold leading-tight truncate">
+                {usersMetrics.reduce((total, user) => total + user.totalMetrics, 0)}
+              </p>
+              <div className="flex gap-1">
+                <p className="text-neutral-500 text-base font-normal leading-normal">Métricas registradas</p>
+                <p className="text-[#078807] text-base font-medium leading-normal">
+                  +{usersMetrics.reduce((total, user) => total + user.totalMetrics, 0)}
+                </p>
+              </div>
+              <div className="flex min-h-[180px] items-end justify-between gap-2 px-3">
+                {usersMetrics.length > 0 ? usersMetrics.filter(user => user.totalMetrics > 0).slice(0, 7).map((user, idx) => {
+                  const maxMetrics = Math.max(...usersMetrics.map(u => u.totalMetrics), 1);
+                  const height = Math.max((user.totalMetrics / maxMetrics) * 100, 5);
+                  return (
+                    <div key={user.id} className="flex flex-col items-center gap-2 flex-1 h-full">
+                      <div className="flex flex-col justify-end h-full w-full">
+                        <div 
+                          className="bg-green-500 w-full" 
+                          style={{ height: `${height}%` }}
+                          title={`${user.name}: ${user.totalMetrics} métricas`}
+                        ></div>
+                      </div>
+                      <p className="text-neutral-500 text-[10px] font-bold leading-normal tracking-[0.015em] truncate w-full text-center">
+                        {user.name.split(' ')[0]}
+                      </p>
+                    </div>
+                  );
+                }) : (
+                  <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                    No hay métricas disponibles
+                  </div>
+                )}
+                {usersMetrics.filter(user => user.totalMetrics > 0).length === 0 && usersMetrics.length > 0 && (
+                  <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                    Los usuarios aún no han registrado métricas
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Vista detallada del usuario - Solo cuando hay uno seleccionado */}
+          {selectedUser && (
+            <div className="bg-white rounded-xl p-6 m-4 border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-[#141414]">Vista detallada del usuario</h3>
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="text-neutral-500 hover:text-neutral-700"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <AvatarImage
+                  src={selectedUser.image}
+                  alt={selectedUser.name}
+                  size={48}
+                  fallback={selectedUser.name.charAt(0)}
+                />
+                <div>
+                  <h3 className="text-[#141414] text-xl font-bold">{selectedUser.name}</h3>
+                  <p className="text-neutral-500 text-sm">{selectedUser.email}</p>
+                  <div className="flex items-center gap-4 mt-2">
+                    <a
+                      href={`/admin/miproyecto?userId=${selectedUser.id}`}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 616 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      Ver como Usuario
+                    </a>
+                    <button
+                      onClick={() => setSelectedUser(null)}
+                      className="text-neutral-500 hover:text-neutral-700 text-xs"
+                    >
+                      Cerrar vista detallada
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gráficos del usuario seleccionado */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Gráfico de evolución de ventas */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-[#141414] font-medium mb-4">Evolución de Ventas (7 días)</h4>
+                  <div className="h-32 flex items-end justify-between gap-2">
+                    {selectedUser.chartData.map((day, idx) => {
+                      const maxValue = Math.max(...selectedUser.chartData.map(d => Math.max(d.sales, d.expenses)), 1);
+                      const salesHeight = Math.max((day.sales / maxValue) * 100, 2);
+                      const expensesHeight = Math.max((day.expenses / maxValue) * 100, 2);
+                      return (
+                        <div key={idx} className="flex flex-col items-center gap-1 flex-1">
+                          <div className="flex flex-col justify-end w-full h-24 gap-1">
+                            <div 
+                              className="bg-green-500 w-full rounded-sm" 
+                              style={{ height: `${salesHeight}%` }}
+                              title={`Ventas: $${day.sales}`}
+                            ></div>
+                            <div 
+                              className="bg-red-500 w-full rounded-sm" 
+                              style={{ height: `${expensesHeight}%` }}
+                              title={`Gastos: $${day.expenses}`}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-neutral-500">{day.day}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Resumen de métricas */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-[#141414] font-medium mb-4">Resumen</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600">Total Métricas:</span>
+                      <span className="font-medium">{selectedUser.totalMetrics}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600">Ventas Total:</span>
+                      <span className="font-medium text-green-600">${selectedUser.totalSales.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-600">Gastos Total:</span>
+                      <span className="font-medium text-red-600">${selectedUser.totalExpenses.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2">
+                      <span className="text-neutral-600 font-medium">Balance:</span>
+                      <span className={`font-bold ${selectedUser.totalSales - selectedUser.totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${(selectedUser.totalSales - selectedUser.totalExpenses).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Eliminar el else que oculta los gráficos generales */}
+                {/* Total de Ventas */}
+                <div className="flex min-w-72 flex-1 flex-col gap-2 rounded-xl border border-[#dbdbdb] p-6">
+                  <p className="text-[#141414] text-base font-medium leading-normal">Total Ventas</p>
+                  <p className="text-[#141414] tracking-light text-[32px] font-bold leading-tight truncate">
+                    ${usersMetrics.reduce((total, user) => total + user.totalSales, 0).toLocaleString()}
+                  </p>
+                  <div className="flex gap-1">
+                    <p className="text-neutral-500 text-base font-normal leading-normal">Ventas registradas</p>
+                    <p className="text-[#078807] text-base font-medium leading-normal">
+                      +${usersMetrics.reduce((total, user) => total + user.totalSales, 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex min-h-[180px] items-end justify-between gap-2 px-3">
+                    {usersMetrics.length > 0 ? usersMetrics.filter(user => user.totalSales > 0).slice(0, 7).map((user, idx) => {
+                      const maxSales = Math.max(...usersMetrics.map(u => u.totalSales), 1);
+                      const height = Math.max((user.totalSales / maxSales) * 100, 5);
+                      return (
+                        <div key={user.id} className="flex flex-col items-center gap-2 flex-1 h-full">
+                          <div className="flex flex-col justify-end h-full w-full">
+                            <div 
+                              className="bg-blue-500 w-full" 
+                              style={{ height: `${height}%` }}
+                              title={`${user.name}: $${user.totalSales.toLocaleString()}`}
+                            ></div>
+                          </div>
+                          <p className="text-neutral-500 text-[10px] font-bold leading-normal tracking-[0.015em] truncate w-full text-center">
+                            {user.name.split(' ')[0]}
+                          </p>
+                        </div>
+                      );
+                    }) : (
+                      <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                        No hay datos de ventas disponibles
+                      </div>
+                    )}
+                    {usersMetrics.filter(user => user.totalSales > 0).length === 0 && usersMetrics.length > 0 && (
+                      <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                        Los usuarios aún no han registrado ventas
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Total de Métricas */}
+                <div className="flex min-w-72 flex-1 flex-col gap-2 rounded-xl border border-[#dbdbdb] p-6">
+                  <p className="text-[#141414] text-base font-medium leading-normal">Total Métricas</p>
+                  <p className="text-[#141414] tracking-light text-[32px] font-bold leading-tight truncate">
+                    {usersMetrics.reduce((total, user) => total + user.totalMetrics, 0)}
+                  </p>
+                  <div className="flex gap-1">
+                    <p className="text-neutral-500 text-base font-normal leading-normal">Métricas registradas</p>
+                    <p className="text-[#078807] text-base font-medium leading-normal">
+                      +{usersMetrics.reduce((total, user) => total + user.totalMetrics, 0)}
+                    </p>
+                  </div>
+                  <div className="flex min-h-[180px] items-end justify-between gap-2 px-3">
+                    {usersMetrics.length > 0 ? usersMetrics.filter(user => user.totalMetrics > 0).slice(0, 7).map((user, idx) => {
+                      const maxMetrics = Math.max(...usersMetrics.map(u => u.totalMetrics), 1);
+                      const height = Math.max((user.totalMetrics / maxMetrics) * 100, 5);
+                      return (
+                        <div key={user.id} className="flex flex-col items-center gap-2 flex-1 h-full">
+                          <div className="flex flex-col justify-end h-full w-full">
+                            <div 
+                              className="bg-green-500 w-full" 
+                              style={{ height: `${height}%` }}
+                              title={`${user.name}: ${user.totalMetrics} métricas`}
+                            ></div>
+                          </div>
+                          <p className="text-neutral-500 text-[10px] font-bold leading-normal tracking-[0.015em] truncate w-full text-center">
+                            {user.name.split(' ')[0]}
+                          </p>
+                        </div>
+                      );
+                    }) : (
+                      <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                        No hay métricas disponibles
+                      </div>
+                    )}
+                    {usersMetrics.filter(user => user.totalMetrics > 0).length === 0 && usersMetrics.length > 0 && (
+                      <div className="w-full flex items-center justify-center text-neutral-500 text-sm">
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+          {/* Lista de usuarios */}
+          <div className="px-4 py-6">
+            <h2 className="text-[#141414] text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Usuarios</h2>
+            {isLoadingUsers ? (
+              <div className="text-center py-8">Cargando usuarios...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {usersMetrics.map((user) => (
+                  <div 
+                    key={user.id} 
+                    className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                      selectedUser?.id === user.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <AvatarImage
+                        src={user.image}
+                        alt={user.name}
+                        size={40}
+                        fallback={user.name.charAt(0)}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-[#141414] truncate">{user.name}</h3>
+                        <p className="text-sm text-neutral-500 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="text-center">
+                        <div className="font-bold text-[#141414]">{user.totalMetrics}</div>
+                        <div className="text-neutral-500">Métricas</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-bold text-green-600">${user.totalSales.toLocaleString()}</div>
+                        <div className="text-neutral-500">Ventas</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-bold text-red-600">${user.totalExpenses.toLocaleString()}</div>
+                        <div className="text-neutral-500">Gastos</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sección de Observaciones */}
+          <h2 className="text-[#141414] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
+            Observaciones {selectedUser && `para ${selectedUser.name}`}
+          </h2>
+
+          {/* Campo para nueva observación */}
+          <div className="flex flex-col gap-3 p-4">
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={newObservation}
+                onChange={(e) => setNewObservation(e.target.value)}
+                placeholder={selectedUser ? `Escribe una observación para ${selectedUser.name}...` : "Escribe una observación general..."}
+                className="w-full p-3 border border-[#dbdbdb] rounded-lg resize-none focus:outline-none focus:border-blue-500"
+                rows={3}
+              />
+              <div className="flex justify-between items-center">
+                {selectedUser && (
+                  <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    Dirigido a: {selectedUser.name}
+                  </span>
+                )}
+                <button
+                  onClick={handleSendObservation}
+                  disabled={!newObservation.trim() || isLoading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Enviando...' : 'Enviar Observación'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Lista de observaciones */}
+          <div className="flex flex-col gap-3 p-4">
+            {observations.map((obs) => (
+              <div key={obs.id} className="border border-[#dbdbdb] rounded-xl p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium">{obs.author.name.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-[#141414] text-sm font-bold">{obs.author.name}</p>
+                      <p className="text-neutral-500 text-sm">
+                        {new Date(obs.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <p className="text-[#141414] text-sm leading-relaxed">{obs.content}</p>
+                    
+                    {/* Mostrar respuestas si las hay */}
+                    {obs.responses && obs.responses.length > 0 && (
+                      <div className="mt-3 ml-4 space-y-2">
+                        {obs.responses.map((response) => (
+                          <div key={response.id} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-sm font-medium text-gray-700">{response.author.name}</p>
+                              <p className="text-xs text-gray-500">{new Date(response.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <p className="text-sm text-gray-600">{response.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

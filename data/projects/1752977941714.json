@@ -1,0 +1,15 @@
+{
+  "id": "1752977941714",
+  "programId": "incubalab",
+  "projectName": "a",
+  "category": "",
+  "industry": "Software",
+  "description": "a",
+  "projectOrigin": "incubalab",
+  "projectStage": "idea",
+  "problemDescription": "a",
+  "opportunityValue": "a",
+  "youtubeUrl": "YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs page.tsx:113 Procesando URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:136 Probando patrón 1: /(?:https?:\\/\\/)?(?:www\\.)?youtube\\.com\\/watch\\?(?:.*&)?v=([a-zA-Z0-9_-]{11})(?:&.*)?$/ page.tsx:140 ✅ Video ID encontrado con patrón 1: nXBAqWYkVSs page.tsx:517 YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs www-embed-player.js:998  GET https://googleads.g.doubleclick.net/pagead/id net::ERR_BLOCKED_BY_CLIENT nn @ www-embed-player.js:998 rn @ www-embed-player.js:1003 (anonymous) @ www-embed-player.js:1601 wi @ www-embed-player.js:581 ov @ www-embed-player.js:1598 Bm @ www-embed-player.js:1620 Iv @ www-embed-player.js:1625 Kw @ www-embed-player.js:1674 (anonymous) @ www-embed-player.js:2038 (anonymous) @ nXBAqWYkVSs?rel=0&modestbranding=1&showinfo=0:10Understand this error page.tsx:625 ✅ Iframe cargado correctamente page.tsx:626 🔗 URL usada: youtube.com page.tsx:113 Procesando URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:136 Probando patrón 1: /(?:https?:\\/\\/)?(?:www\\.)?youtube\\.com\\/watch\\?(?:.*&)?v=([a-zA-Z0-9_-]{11})(?:&.*)?$/ page.tsx:140 ✅ Video ID encontrado con patrón 1: nXBAqWYkVSs page.tsx:517 YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs page.tsx:113 Procesando URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:136 Probando patrón 1: /(?:https?:\\/\\/)?(?:www\\.)?youtube\\.com\\/watch\\?(?:.*&)?v=([a-zA-Z0-9_-]{11})(?:&.*)?$/ page.tsx:140 ✅ Video ID encontrado con patrón 1: nXBAqWYkVSs page.tsx:517 YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs page.tsx:631 ❌ Iframe bloqueado o no cargó contenido page.tsx:113 Procesando URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:136 Probando patrón 1: /(?:https?:\\/\\/)?(?:www\\.)?youtube\\.com\\/watch\\?(?:.*&)?v=([a-zA-Z0-9_-]{11})(?:&.*)?$/ page.tsx:140 ✅ Video ID encontrado con patrón 1: nXBAqWYkVSs page.tsx:517 YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs page.tsx:113 Procesando URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:136 Probando patrón 1: /(?:https?:\\/\\/)?(?:www\\.)?youtube\\.com\\/watch\\?(?:.*&)?v=([a-zA-Z0-9_-]{11})(?:&.*)?$/ page.tsx:140 ✅ Video ID encontrado con patrón 1: nXBAqWYkVSs page.tsx:517 YouTube URL: https://www.youtube.com/watch?v=nXBAqWYkVSs&t=5s page.tsx:518 Extracted Video ID: nXBAqWYkVSs",
+  "createdAt": "2025-07-20T02:19:01.714Z",
+  "status": "registered"
+}

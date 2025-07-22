@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user")
+  accounts      Account[]
+  sessions      Session[]
+  observations  Observation[]
+  metrics       Metric[]
+  responses     ObservationResponse[]
+  receivedObservations Observation[] @relation("UserObservations")
+  activityLogs  ActivityLog[]
+}
+
+model Observation {
+  id          String   @id @default(cuid())
+  content     String
+  authorId    String
+  targetUserId String?  // Usuario al que va dirigida la observación
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  targetUser  User?    @relation("UserObservations", fields: [targetUserId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  responses   ObservationResponse[]
+}
+
+model ObservationResponse {
+  id             String      @id @default(cuid())
+  content        String
+  observationId  String
+  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Metric {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  comment     String
+  imageUrl    String
+  documentUrl String
+  sales       Float?   // Ingresos de ventas
+  expenses    Float?   // Gastos
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String   // login, logout, upload_metric, upload_document, upload_image, create_observation, respond_observation
+  description String
+  metadata    Json?    // Información adicional como nombre de archivo, tamaño, etc.
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

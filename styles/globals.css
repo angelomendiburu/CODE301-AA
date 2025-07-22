@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#gradient-canvas {
+  --gradient-color-1: #FF007B;
+  --gradient-color-2: #FF6A00;
+  --gradient-color-3: #FF8C00;
+  --gradient-color-4: #FF2D55;
+}
+
+/* Animated Gradient Headers - Subtle Version */
+@keyframes subtleGradientShift {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gentleFloat {
+  0%, 100% { 
+    opacity: 0.1; 
+    transform: translateY(0px) scale(1);
+  }
+  50% { 
+    opacity: 0.25; 
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+@keyframes softPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.95; }
+}
+
+.subtle-animated-header {
+  background-size: 300% 300%;
+  animation: subtleGradientShift 12s ease-in-out infinite;
+}
+
+.gentle-overlay {
+  animation: gentleFloat 6s ease-in-out infinite;
+}
+
+.soft-pulse {
+  animation: softPulse 8s ease-in-out infinite;
+}
