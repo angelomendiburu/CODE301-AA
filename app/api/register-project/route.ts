@@ -13,6 +13,7 @@ interface ProjectData {
   problemDescription: string;
   opportunityValue: string;
   youtubeUrl: string;
+  phone: string;
 }
 
 // Función para guardar en archivo JSON
@@ -54,7 +55,8 @@ export async function POST(request: NextRequest) {
       'projectOrigin',
       'projectStage',
       'problemDescription',
-      'opportunityValue'
+      'opportunityValue',
+      'phone'
     ];
     
     for (const field of requiredFields) {

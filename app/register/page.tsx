@@ -25,6 +25,7 @@ interface ProjectData {
   problemDescription: string;
   opportunityValue: string;
   youtubeUrl: string;
+  phone: string;
 }
 
 const programs: Program[] = [
@@ -78,7 +79,8 @@ export default function RegisterPage() {
     projectStage: '',
     problemDescription: '',
     opportunityValue: '',
-    youtubeUrl: ''
+    youtubeUrl: '',
+    phone: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -90,7 +92,7 @@ export default function RegisterPage() {
 
   // Auto-save function
   const saveProgress = async () => {
-    if (!session?.user?.email || currentStep === 1) return;
+    if (!session?.user?.email) return;
     
     try {
       const response = await fetch('/api/save-progress', {
@@ -215,7 +217,7 @@ export default function RegisterPage() {
     if (!program.isEnabled) return;
     setSelectedProgram(program);
     setProjectData(prev => ({ ...prev, programId: program.id }));
-    setCurrentStep(2);
+    // No avanzar automáticamente - el usuario debe completar los datos de contacto
   };
 
   const handleNextStep = () => {
@@ -306,54 +308,136 @@ export default function RegisterPage() {
 
   const renderStep1 = () => (
     <div className="space-y-8">
-      <div className="text-center">
-        <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          Selecciona tu Programa
-        </h2>
-        <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Elige el programa que mejor se adapte a tu proyecto o idea de negocio
-        </p>
-      </div>
+      {!selectedProgram ? (
+        <>
+          <div className="text-center">
+            <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Selecciona tu Programa
+            </h2>
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Elige el programa que mejor se adapte a tu proyecto o idea de negocio
+            </p>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        {programs.map((program) => (
-          <div
-            key={program.id}
-            onClick={() => handleProgramSelect(program)}
-            className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${
-              program.isEnabled
-                ? `cursor-pointer hover:shadow-xl hover:scale-105 ${
-                    isDarkMode
-                      ? 'border-gray-600 bg-gray-800 hover:border-purple-500'
-                      : 'border-gray-200 bg-white hover:border-purple-500 shadow-sm'
-                  }`
-                : `opacity-50 cursor-not-allowed ${
-                    isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
-                  }`
-            }`}
-          >
-            {!program.isEnabled && (
-              <div className="absolute inset-0 bg-black bg-opacity-20 rounded-xl flex items-center justify-center z-10">
-                <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Próximamente
-                </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {programs.map((program) => (
+              <div
+                key={program.id}
+                onClick={() => handleProgramSelect(program)}
+                className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${
+                  program.isEnabled
+                    ? `cursor-pointer hover:shadow-xl hover:scale-105 ${
+                        isDarkMode
+                          ? 'border-gray-600 bg-gray-800 hover:border-purple-500'
+                          : 'border-gray-200 bg-white hover:border-purple-500 shadow-sm'
+                      }`
+                    : `opacity-50 cursor-not-allowed ${
+                        isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
+                      }`
+                }`}
+              >
+                {!program.isEnabled && (
+                  <div className="absolute inset-0 bg-black bg-opacity-20 rounded-xl flex items-center justify-center z-10">
+                    <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Próximamente
+                    </span>
+                  </div>
+                )}
+                
+                <div className="text-center">
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${program.color} flex items-center justify-center text-2xl shadow-lg`}>
+                    {program.icon}
+                  </div>
+                  <h3 className={`text-xl font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {program.name}
+                  </h3>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
+                    {program.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="text-center">
+            <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Datos de Contacto
+            </h2>
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Información básica para el programa <strong>{selectedProgram.name}</strong>
+            </p>
+          </div>
+
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Información del usuario logueado */}
+            {session?.user && (
+              <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Datos de tu cuenta:
+                </h3>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <strong>Nombre:</strong> {session.user.name}
+                </p>
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <strong>Email:</strong> {session.user.email}
+                </p>
               </div>
             )}
-            
-            <div className="text-center">
-              <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${program.color} flex items-center justify-center text-2xl shadow-lg`}>
-                {program.icon}
-              </div>
-              <h3 className={`text-xl font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {program.name}
-              </h3>
-              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
-                {program.description}
+
+            {/* Campo de teléfono */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Número de teléfono *
+              </label>
+              <input
+                type="tel"
+                value={projectData.phone}
+                onChange={(e) => setProjectData(prev => ({ ...prev, phone: e.target.value }))}
+                className={`w-full p-4 rounded-lg border transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-600 text-white focus:border-purple-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
+                } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
+                placeholder="Ingresa tu número de teléfono"
+                required
+              />
+              <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Ejemplo: +51 999 888 777 o 999888777
               </p>
             </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setSelectedProgram(null)}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  isDarkMode
+                    ? 'bg-gray-700 text-white hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                ← Cambiar Programa
+              </button>
+              <button
+                onClick={async () => {
+                  if (projectData.phone.trim()) {
+                    // Guardar progreso antes de avanzar
+                    await saveProgress();
+                    setCurrentStep(2);
+                  } else {
+                    alert('Por favor ingresa tu número de teléfono');
+                  }
+                }}
+                disabled={!projectData.phone.trim()}
+                className={`px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium transition-all hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+              >
+                Continuar →
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 

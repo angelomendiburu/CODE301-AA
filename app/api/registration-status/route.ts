@@ -21,19 +21,28 @@ export async function GET(request: NextRequest) {
     const registrations = JSON.parse(registrationsData);
 
     // Buscar el registro del usuario actual
+    // Buscar primero por email real, luego por anonymous (datos legacy)
     const userRegistration = registrations.find((reg: any) => 
-      reg.userEmail === session.user.email || reg.userEmail === 'anonymous'
+      reg.userEmail === session.user.email
     );
 
-    if (!userRegistration) {
+    // Si no se encuentra por email, buscar el más reciente con "anonymous" 
+    // esto es para compatibilidad con datos existentes
+    const anonymousRegistration = registrations
+      .filter((reg: any) => reg.userEmail === 'anonymous')
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+    const finalRegistration = userRegistration || anonymousRegistration;
+
+    if (!finalRegistration) {
       return NextResponse.json({ status: 'not_found' });
     }
 
     return NextResponse.json({ 
-      status: userRegistration.status,
-      projectName: userRegistration.projectName,
-      createdAt: userRegistration.createdAt,
-      processedAt: userRegistration.processedAt
+      status: finalRegistration.status,
+      projectName: finalRegistration.projectName,
+      createdAt: finalRegistration.createdAt,
+      processedAt: finalRegistration.processedAt
     });
 
   } catch (error) {

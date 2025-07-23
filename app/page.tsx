@@ -30,17 +30,48 @@ export default function Home() {
   useEffect(() => {
     if (status === 'loading') return; // Esperando a que cargue
 
+    // Función para verificar el estado de aprobación del usuario
+    const checkUserApprovalStatus = async () => {
+      try {
+        const response = await fetch('/api/registration-status');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'approved') {
+            // Usuario aprobado: redirigir a mi-proyecto
+            router.push('/mi-proyecto');
+          } else if (data.status === 'pending') {
+            // Usuario pendiente: redirigir a página de espera
+            router.push('/pending-approval');
+          } else if (data.status === 'rejected') {
+            // Usuario rechazado: permitir nuevo registro
+            // No redirigir, mantener en página principal
+          } else {
+            // Usuario sin registro: redirigir a formulario de registro
+            router.push('/register');
+          }
+        } else {
+          // Si no hay registro, redirigir a formulario de registro
+          router.push('/register');
+        }
+      } catch (error) {
+        console.error('Error checking approval status:', error);
+        // En caso de error, redirigir a registro por seguridad
+        router.push('/register');
+      }
+    };
+
     if (session?.user) {
       // Solo redirigir si no hay un parámetro que indique que no queremos la redirección automática
       const searchParams = new URLSearchParams(window.location.search);
       const noRedirect = searchParams.get('noRedirect');
       
       if (!noRedirect) {
-        // Usuario autenticado, redirigir basado en el email
+        // Usuario admin: redirigir al panel de admin
         if (session.user.email === 'angelomendiburu@gmail.com') {
           router.push('/admin/metrics');
         } else {
-          router.push('/mi-proyecto');
+          // Usuario regular: verificar estado de aprobación
+          checkUserApprovalStatus();
         }
       }
     }

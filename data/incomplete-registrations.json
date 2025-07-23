@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": "1753233100000",
+    "userEmail": "usuario.incompleto@gmail.com",
+    "projectData": {
+      "programId": "idea-feedback",
+      "projectName": "Mi Startup",
+      "category": "",
+      "industry": "Tecnología",
+      "description": "Una aplicación innovadora",
+      "projectOrigin": "",
+      "projectStage": "",
+      "problemDescription": "",
+      "opportunityValue": "",
+      "youtubeUrl": "",
+      "phone": "+51987654321"
+    },
+    "currentStep": 2,
+    "createdAt": "2025-07-23T01:15:00.000Z",
+    "updatedAt": "2025-07-23T01:20:00.000Z",
+    "status": "incomplete"
+  },
+  {
+    "id": "1753233200000",
+    "userEmail": "joven@gmail.com",
+    "projectData": {
+      "programId": "incubalab",
+      "projectName": "Proyecto en Desarrollo",
+      "category": "",
+      "industry": "Marketing",
+      "description": "Un proyecto que estoy desarrollando paso a paso",
+      "projectOrigin": "idea",
+      "projectStage": "",
+      "problemDescription": "",
+      "opportunityValue": "",
+      "youtubeUrl": "",
+      "phone": "+51999888777"
+    },
+    "currentStep": 3,
+    "createdAt": "2025-07-23T01:18:00.000Z",
+    "updatedAt": "2025-07-23T01:25:00.000Z",
+    "status": "incomplete"
+  }
+]

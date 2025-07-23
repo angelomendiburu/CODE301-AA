@@ -17,6 +17,7 @@ interface IncompleteRegistration {
     problemDescription: string;
     opportunityValue: string;
     youtubeUrl: string;
+    phone: string;
   };
   currentStep: number;
   createdAt: string;
@@ -38,6 +39,7 @@ interface CompleteRegistration {
     problemDescription: string;
     opportunityValue: string;
     youtubeUrl: string;
+    phone: string;
   };
   // Soporte para formato legacy
   programId?: string;
@@ -50,6 +52,7 @@ interface CompleteRegistration {
   problemDescription?: string;
   opportunityValue?: string;
   youtubeUrl?: string;
+  phone?: string;
   
   completedSteps?: number;
   createdAt: string;
@@ -259,6 +262,11 @@ export default function AdminRegisterPage() {
                 <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
                   <span className="font-medium">Email:</span> {selectedRegistration.userEmail}
                 </p>
+                {(selectedRegistration.projectData?.phone || selectedRegistration.phone) && (
+                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
+                    <span className="font-medium">Teléfono:</span> {selectedRegistration.projectData?.phone || selectedRegistration.phone}
+                  </p>
+                )}
                 <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
                   <span className="font-medium">Fecha de registro:</span> {formatDate(selectedRegistration.createdAt)}
                 </p>
