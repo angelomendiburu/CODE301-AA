@@ -251,7 +251,7 @@ export default function AdminUsers() {
             </a>
 
             <a
-              href="/admin/registrations"
+              href="/admin/register"
               className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg transition-colors group ${
                 isDarkMode 
                   ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 

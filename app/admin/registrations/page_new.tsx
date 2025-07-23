@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -56,14 +56,13 @@ interface CompleteRegistration {
   status: 'pending' | 'approved' | 'rejected';
 }
 
-export default function AdminRegisterPage() {
+export default function AdminRegistrationsPage() {
   const [incompleteRegistrations, setIncompleteRegistrations] = useState<IncompleteRegistration[]>([]);
   const [completeRegistrations, setCompleteRegistrations] = useState<CompleteRegistration[]>([]);
   const [activeTab, setActiveTab] = useState<'incomplete' | 'pending' | 'approved' | 'rejected'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRegistration, setSelectedRegistration] = useState<CompleteRegistration | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Estados para video preview
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -111,45 +110,6 @@ export default function AdminRegisterPage() {
       youtubeUrl: registration.youtubeUrl || ''
     };
   };
-
-  useEffect(() => {
-    // Detectar modo oscuro del localStorage (sincronizado con el AdminSidebar)
-    const savedDarkMode = localStorage.getItem('adminDarkMode');
-    if (savedDarkMode !== null) {
-      setIsDarkMode(JSON.parse(savedDarkMode));
-    } else {
-      // Fallback al modo oscuro del sistema si no hay preferencia guardada
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      setIsDarkMode(mediaQuery.matches);
-    }
-    
-    // Listener para cambios en localStorage (cuando se cambia desde AdminSidebar)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'adminDarkMode' && e.newValue !== null) {
-        setIsDarkMode(JSON.parse(e.newValue));
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Aplicar modo oscuro al documento completo
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#111827'; // bg-gray-900
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#ffffff';
-    }
-    
-    // Cleanup al desmontar el componente
-    return () => {
-      document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '';
-    };
-  }, [isDarkMode]);
 
   useEffect(() => {
     loadRegistrations();
@@ -224,24 +184,14 @@ export default function AdminRegisterPage() {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className={`rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
-        }`}>
-          <div className={`sticky top-0 border-b p-6 flex justify-between items-center ${
-            isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-          }`}>
-            <h2 className={`text-2xl font-bold ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-900">
               Detalles del Registro
             </h2>
             <button
               onClick={closeModal}
-              className={`transition-colors ${
-                isDarkMode 
-                  ? 'text-gray-400 hover:text-white' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className="text-gray-500 hover:text-gray-700"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -253,17 +203,10 @@ export default function AdminRegisterPage() {
             {/* Información básica */}
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Información del Usuario</h3>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Email:</span> {selectedRegistration.userEmail}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Fecha de registro:</span> {formatDate(selectedRegistration.createdAt)}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Estado:</span> 
+                <h3 className="font-semibold text-gray-900 mb-2">Información del Usuario</h3>
+                <p><span className="font-medium">Email:</span> {selectedRegistration.userEmail}</p>
+                <p><span className="font-medium">Fecha de registro:</span> {formatDate(selectedRegistration.createdAt)}</p>
+                <p><span className="font-medium">Estado:</span> 
                   <span className={`ml-1 px-2 py-1 text-xs rounded-full ${
                     selectedRegistration.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                     selectedRegistration.status === 'approved' ? 'bg-green-100 text-green-800' :
@@ -276,97 +219,57 @@ export default function AdminRegisterPage() {
               </div>
 
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Datos del Proyecto</h3>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Nombre:</span> {projectData.projectName}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Programa:</span> {projectData.programId}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Industria:</span> {projectData.industry}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Categoría:</span> {projectData.category}
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">Datos del Proyecto</h3>
+                <p><span className="font-medium">Nombre:</span> {projectData.projectName}</p>
+                <p><span className="font-medium">Programa:</span> {projectData.programId}</p>
+                <p><span className="font-medium">Industria:</span> {projectData.industry}</p>
+                <p><span className="font-medium">Categoría:</span> {projectData.category}</p>
               </div>
             </div>
 
             {/* Descripción del proyecto */}
             <div>
-              <h3 className={`font-semibold mb-2 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}>Descripción del Proyecto</h3>
-              <p className={`p-4 rounded-lg ${
-                isDarkMode 
-                  ? 'text-gray-300 bg-gray-700' 
-                  : 'text-gray-700 bg-gray-50'
-              }`}>{projectData.description}</p>
+              <h3 className="font-semibold text-gray-900 mb-2">Descripción del Proyecto</h3>
+              <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{projectData.description}</p>
             </div>
 
             {/* Información adicional */}
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Origen y Etapa</h3>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Origen del proyecto:</span> {projectData.projectOrigin}
-                </p>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Etapa actual:</span> {projectData.projectStage}
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">Origen y Etapa</h3>
+                <p><span className="font-medium">Origen del proyecto:</span> {projectData.projectOrigin}</p>
+                <p><span className="font-medium">Etapa actual:</span> {projectData.projectStage}</p>
               </div>
 
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Impacto y Valor</h3>
-                <p className={isDarkMode ? 'text-gray-300' : 'text-gray-900'}>
-                  <span className="font-medium">Valor de oportunidad:</span> {projectData.opportunityValue}
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">Impacto y Valor</h3>
+                <p><span className="font-medium">Valor de oportunidad:</span> {projectData.opportunityValue}</p>
               </div>
             </div>
 
             {/* Descripción del problema */}
             {projectData.problemDescription && (
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Descripción del Problema</h3>
-                <p className={`p-4 rounded-lg ${
-                  isDarkMode 
-                    ? 'text-gray-300 bg-gray-700' 
-                    : 'text-gray-700 bg-gray-50'
-                }`}>{projectData.problemDescription}</p>
+                <h3 className="font-semibold text-gray-900 mb-2">Descripción del Problema</h3>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{projectData.problemDescription}</p>
               </div>
             )}
 
             {/* Video de YouTube */}
             {projectData.youtubeUrl && (
               <div>
-                <h3 className={`font-semibold mb-2 ${
-                  isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>Video de Presentación</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Video de Presentación</h3>
                 <div className="space-y-3">
-                  <p className={`text-sm ${
-                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>URL: {projectData.youtubeUrl}</p>
+                  <p className="text-sm text-gray-600">URL: {projectData.youtubeUrl}</p>
                   
                   {videoId ? (
                     <div>
                       <div className="aspect-video w-full rounded-lg overflow-hidden bg-black shadow-lg relative">
                         {!iframeLoaded && (
-                          <div className={`absolute inset-0 flex items-center justify-center z-10 ${
-                            isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
-                          }`}>
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                             <div className="text-center">
                               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                              <p className={`mt-2 text-sm ${
-                                isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                              }`}>Cargando video...</p>
+                              <p className="mt-2 text-sm text-gray-600">Cargando video...</p>
                             </div>
                           </div>
                         )}
@@ -383,9 +286,7 @@ export default function AdminRegisterPage() {
                         ></iframe>
                       </div>
                       
-                      <div className={`mt-3 p-3 rounded-lg ${
-                        isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                      }`}>
+                      <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-3">
                           <Image
                             src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
@@ -395,9 +296,7 @@ export default function AdminRegisterPage() {
                             className="rounded object-cover"
                           />
                           <div>
-                            <p className={`text-sm font-medium ${
-                              isDarkMode ? 'text-white' : 'text-gray-900'
-                            }`}>Video ID: {videoId}</p>
+                            <p className="text-sm font-medium text-gray-900">Video ID: {videoId}</p>
                             <a
                               href={`https://www.youtube.com/watch?v=${videoId}`}
                               target="_blank"
@@ -411,12 +310,8 @@ export default function AdminRegisterPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className={`p-4 border rounded-lg ${
-                      isDarkMode 
-                        ? 'bg-yellow-900/20 border-yellow-700 text-yellow-300' 
-                        : 'bg-yellow-50 border-yellow-200 text-yellow-800'
-                    }`}>
-                      <p className="text-sm">URL de video no válida o no reconocida</p>
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">URL de video no válida o no reconocida</p>
                     </div>
                   )}
                 </div>
@@ -425,9 +320,7 @@ export default function AdminRegisterPage() {
 
             {/* Botones de acción */}
             {activeTab === 'pending' && (
-              <div className={`flex gap-3 pt-4 border-t ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              }`}>
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => {
                     handleApproval(selectedRegistration.id, 'approve');
@@ -463,28 +356,17 @@ export default function AdminRegisterPage() {
 
   if (loading) {
     return (
-      <div className={`min-h-screen w-full ${
-        isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
-      }`}>
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="text-center">Cargando registros...</div>
-        </div>
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center">Cargando registros...</div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen w-full ${
-      isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
-    }`}>
-      <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className={`text-3xl font-bold ${
-          isDarkMode ? 'text-white' : 'text-gray-800'
-        }`}>Panel de Solicitudes de Registro</h1>
-        <p className={`mt-2 ${
-          isDarkMode ? 'text-gray-300' : 'text-gray-600'
-        }`}>Gestiona todas las solicitudes de registro según el plan de postulación</p>
+        <h1 className="text-3xl font-bold text-gray-800">Panel de Solicitudes de Registro</h1>
+        <p className="text-gray-600 mt-2">Gestiona todas las solicitudes de registro según el plan de postulación</p>
       </div>
       
       {/* Tabs */}
@@ -501,9 +383,7 @@ export default function AdminRegisterPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeTab === tab.key
                 ? 'bg-blue-500 text-white'
-                : isDarkMode
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             {tab.label} ({tab.count})
@@ -512,54 +392,36 @@ export default function AdminRegisterPage() {
       </div>
 
       {/* Content */}
-      <div className={`rounded-lg shadow ${
-        isDarkMode ? 'bg-gray-800' : 'bg-white'
-      }`}>
+      <div className="bg-white rounded-lg shadow">
         {activeTab === 'incomplete' && (
           <div className="p-6">
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDarkMode ? 'text-white' : 'text-gray-800'
-            }`}>Registros Incompletos</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Registros Incompletos</h2>
             {incompleteRegistrations.length === 0 ? (
-              <div className="text-center py-8">
-                <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                  No hay registros incompletos en este momento
-                </p>
+              <div className="text-center text-gray-500 py-8">
+                <p>No hay registros incompletos en este momento</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {incompleteRegistrations.map((registration) => (
-                  <div key={registration.id} className={`border rounded-lg p-4 ${
-                    isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                  }`}>
+                  <div key={registration.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className={`font-semibold ${
-                          isDarkMode ? 'text-white' : 'text-gray-900'
-                        }`}>
+                        <h3 className="font-semibold text-gray-900">
                           {registration.projectData.projectName || 'Sin nombre de proyecto'}
                         </h3>
-                        <p className={`text-sm ${
-                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>{registration.userEmail}</p>
+                        <p className="text-sm text-gray-600">{registration.userEmail}</p>
                       </div>
                       <div className="text-right">
-                        <div className={`text-sm ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                        }`}>
+                        <div className="text-sm text-gray-500">
                           Progreso: {getStepProgress(registration.currentStep)}
                         </div>
-                        <div className={`text-xs ${
-                          isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                        }`}>
+                        <div className="text-xs text-gray-400">
                           Actualizado: {formatDate(registration.updatedAt)}
                         </div>
                       </div>
                     </div>
                     
-                    <div className={`grid grid-cols-2 gap-4 text-sm ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                    }`}>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="font-medium">Programa:</span> {registration.projectData.programId || 'No seleccionado'}
                       </div>
@@ -570,12 +432,8 @@ export default function AdminRegisterPage() {
                     
                     {registration.projectData.description && (
                       <div className="mt-2">
-                        <span className={`font-medium text-sm ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                        }`}>Descripción:</span>
-                        <p className={`text-sm mt-1 ${
-                          isDarkMode ? 'text-gray-400' : 'text-gray-700'
-                        }`}>{registration.projectData.description}</p>
+                        <span className="font-medium text-sm">Descripción:</span>
+                        <p className="text-sm text-gray-700 mt-1">{registration.projectData.description}</p>
                       </div>
                     )}
                   </div>
@@ -587,51 +445,37 @@ export default function AdminRegisterPage() {
 
         {activeTab !== 'incomplete' && (
           <div className="p-6">
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDarkMode ? 'text-white' : 'text-gray-800'
-            }`}>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Registros {activeTab === 'pending' ? 'Pendientes' : activeTab === 'approved' ? 'Aprobados' : 'Rechazados'}
             </h2>
             {filteredCompleteRegistrations.length === 0 ? (
-              <div className="text-center py-8">
-                <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
-                  No hay registros {activeTab === 'pending' ? 'pendientes' : activeTab === 'approved' ? 'aprobados' : 'rechazados'} en este momento
-                </p>
+              <div className="text-center text-gray-500 py-8">
+                <p>No hay registros {activeTab === 'pending' ? 'pendientes' : activeTab === 'approved' ? 'aprobados' : 'rechazados'} en este momento</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {filteredCompleteRegistrations.map((registration) => {
                   const projectData = getProjectData(registration);
                   return (
-                    <div key={registration.id} className={`border rounded-lg p-4 ${
-                      isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                    }`}>
+                    <div key={registration.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className={`font-semibold ${
-                            isDarkMode ? 'text-white' : 'text-gray-900'
-                          }`}>
+                          <h3 className="font-semibold text-gray-900">
                             {projectData.projectName}
                           </h3>
-                          <p className={`text-sm ${
-                            isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                          }`}>{registration.userEmail}</p>
+                          <p className="text-sm text-gray-600">{registration.userEmail}</p>
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-medium text-green-600">
                             Completo (4/4)
                           </div>
-                          <div className={`text-xs ${
-                            isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                          }`}>
+                          <div className="text-xs text-gray-400">
                             Enviado: {formatDate(registration.createdAt)}
                           </div>
                         </div>
                       </div>
                       
-                      <div className={`grid grid-cols-2 gap-4 text-sm mb-3 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                      }`}>
+                      <div className="grid grid-cols-2 gap-4 text-sm mb-3">
                         <div>
                           <span className="font-medium">Programa:</span> {projectData.programId}
                         </div>
@@ -640,9 +484,7 @@ export default function AdminRegisterPage() {
                         </div>
                       </div>
                       
-                      <p className={`text-sm mb-3 ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-700'
-                      }`}>{projectData.description}</p>
+                      <p className="text-sm text-gray-700 mb-3">{projectData.description}</p>
                       
                       <div className="flex gap-2">
                         <button
@@ -680,7 +522,6 @@ export default function AdminRegisterPage() {
 
       {/* Modal de detalles */}
       {isModalOpen && <DetailModal />}
-      </div>
     </div>
   );
 }

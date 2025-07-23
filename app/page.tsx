@@ -108,7 +108,11 @@ export default function Home() {
           />
         </div>
         <button
-          type="submit"
+          type="button"
+          onClick={() => {
+            setIsModalOpen(false);
+            router.push('/register');
+          }}
           className="w-full bg-[#1E2B3A] text-white rounded-lg px-4 py-2 hover:bg-[#0D2247] transition-colors duration-75"
         >
           Sign In
@@ -223,7 +227,11 @@ export default function Home() {
           />
         </div>
         <button
-          type="submit"
+          type="button"
+          onClick={() => {
+            setIsModalOpen(false);
+            router.push('/register');
+          }}
           className="w-full bg-[#ff2d5b] text-white rounded-lg px-4 py-2 hover:bg-[#ff1f4f] transition-colors duration-75"
         >
           Create Account

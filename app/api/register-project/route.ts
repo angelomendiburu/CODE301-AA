@@ -15,11 +15,37 @@ interface ProjectData {
   youtubeUrl: string;
 }
 
+// Función para guardar en archivo JSON
+async function saveToFile(fileName: string, data: any) {
+  const filePath = path.join(process.cwd(), 'data', fileName);
+  const dirPath = path.dirname(filePath);
+  
+  // Crear directorio si no existe
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+
+  let existingData = [];
+  if (fs.existsSync(filePath)) {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    try {
+      existingData = JSON.parse(fileContent);
+    } catch (error) {
+      console.error('Error parsing existing file:', error);
+      existingData = [];
+    }
+  }
+
+  existingData.push(data);
+  fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const projectData: ProjectData = await request.json();
+    const body = await request.json();
+    const { projectData, userEmail } = body;
     
-    // Validate required fields
+    // Validate required fields for complete registration
     const requiredFields: (keyof ProjectData)[] = [
       'programId',
       'projectName', 
@@ -43,53 +69,29 @@ export async function POST(request: NextRequest) {
     // Create project data with timestamp
     const project = {
       id: Date.now().toString(),
+      userEmail: userEmail || 'anonymous',
       ...projectData,
       createdAt: new Date().toISOString(),
-      status: 'registered'
+      status: 'pending',
+      completedSteps: 4
     };
 
-    // Define the path for storing project data
-    const dataDir = path.join(process.cwd(), 'data', 'projects');
-    const filePath = path.join(dataDir, `${project.id}.json`);
+    // Save complete registration to registrations.json
+    await saveToFile('registrations.json', project);
 
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-
-    // Save project data to file
-    fs.writeFileSync(filePath, JSON.stringify(project, null, 2));
-
-    // Also save to a master projects list for easy retrieval
-    const projectsListPath = path.join(dataDir, 'projects-list.json');
-    let projectsList = [];
-    
-    if (fs.existsSync(projectsListPath)) {
-      const existingData = fs.readFileSync(projectsListPath, 'utf-8');
-      projectsList = JSON.parse(existingData);
-    }
-    
-    projectsList.push({
-      id: project.id,
-      projectName: project.projectName,
-      programId: project.programId,
-      industry: project.industry,
-      createdAt: project.createdAt,
-      status: project.status
-    });
-    
-    fs.writeFileSync(projectsListPath, JSON.stringify(projectsList, null, 2));
-
-    console.log('Project registered successfully:', {
+    console.log('Complete project registration:', {
       id: project.id,
       name: project.projectName,
-      program: project.programId
+      program: project.programId,
+      userEmail: project.userEmail
     });
 
     return NextResponse.json(
       { 
-        message: 'Proyecto registrado exitosamente',
-        projectId: project.id
+        success: true,
+        message: 'Registro completo enviado exitosamente',
+        projectId: project.id,
+        redirectTo: '/pending-approval'
       },
       { status: 201 }
     );

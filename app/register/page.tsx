@@ -82,10 +82,80 @@ export default function RegisterPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [autoSaveMessage, setAutoSaveMessage] = useState('');
 
   // Estados para el iframe
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
+
+  // Auto-save function
+  const saveProgress = async () => {
+    if (!session?.user?.email || currentStep === 1) return;
+    
+    try {
+      const response = await fetch('/api/save-progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectData,
+          currentStep,
+          userEmail: session.user.email
+        }),
+      });
+
+      if (response.ok) {
+        setAutoSaveMessage('Progreso guardado automáticamente');
+        setTimeout(() => setAutoSaveMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  // Auto-save effect - save every 30 seconds when data changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!session?.user?.email || currentStep === 1) return;
+      
+      // Direct auto-save without calling external function
+      const autoSave = async () => {
+        try {
+          const response = await fetch('/api/save-progress', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              projectData,
+              currentStep,
+              userEmail: session.user.email
+            }),
+          });
+
+          if (response.ok) {
+            setAutoSaveMessage('Progreso guardado automáticamente');
+            setTimeout(() => setAutoSaveMessage(''), 3000);
+          }
+        } catch (error) {
+          console.error('Error saving progress:', error);
+        }
+      };
+
+      autoSave();
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [projectData, currentStep, session]);
+
+  // Save progress when moving to next step
+  const handleNextWithSave = async () => {
+    await saveProgress();
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
 
   // Load dark mode preference
   useEffect(() => {
@@ -149,9 +219,8 @@ export default function RegisterPage() {
   };
 
   const handleNextStep = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    }
+    // Save progress before moving to next step
+    handleNextWithSave();
   };
 
   const handlePrevStep = () => {
@@ -168,12 +237,16 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(projectData),
+        body: JSON.stringify({
+          projectData,
+          userEmail: session?.user?.email || 'anonymous'
+        }),
       });
 
       if (response.ok) {
-        // Redirect to mi-proyecto page
-        router.push('/mi-proyecto');
+        const result = await response.json();
+        // Redirect to pending-approval page after successful complete registration
+        router.push('/pending-approval');
       } else {
         const error = await response.json();
         alert(error.message || 'Error al registrar el proyecto');
@@ -811,11 +884,22 @@ export default function RegisterPage() {
               </div>
             </div>
             
-            {selectedProgram && (
-              <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                Programa: <span className="font-medium text-purple-600">{selectedProgram.name}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-4">
+              {autoSaveMessage && (
+                <div className="text-xs text-green-600 font-medium flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {autoSaveMessage}
+                </div>
+              )}
+              
+              {selectedProgram && (
+                <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Programa: <span className="font-medium text-purple-600">{selectedProgram.name}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

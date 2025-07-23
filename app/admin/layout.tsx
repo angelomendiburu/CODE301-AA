@@ -180,9 +180,9 @@ export default function AdminLayout({
             </Link>
 
             <Link
-              href="/admin/registrations"
+              href="/admin/register"
               className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'gap-3'} px-3 py-3 rounded-lg font-medium text-sm lg:text-base group ${
-                pathname === '/admin/registrations'
+                pathname === '/admin/register'
                   ? (isDarkMode 
                       ? 'bg-gradient-to-r from-[#D000FF]/20 to-[#FF8C00]/20 text-white border border-white/10' 
                       : 'bg-gradient-to-r from-[#D000FF]/10 to-[#FF8C00]/10 text-[#D000FF] border border-[#D000FF]/20 shadow-md')
