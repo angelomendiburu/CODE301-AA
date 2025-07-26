@@ -43,10 +43,25 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Definir interfaces para los objetos de usuario y métrica
+    interface Metric {
+      sales: number | null;
+      expenses: number | null;
+      createdAt: Date;
+    }
+
+    interface User {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      metrics: Metric[];
+    }
+
     // Procesar datos para cada usuario
-    const usersMetrics = users.map(user => {
-      const totalSales = user.metrics.reduce((sum, metric) => sum + (metric.sales || 0), 0)
-      const totalExpenses = user.metrics.reduce((sum, metric) => sum + (metric.expenses || 0), 0)
+    const usersMetrics = users.map((user: User) => {
+      const totalSales = user.metrics.reduce((sum: number, metric: Metric) => sum + (metric.sales || 0), 0)
+      const totalExpenses = user.metrics.reduce((sum: number, metric: Metric) => sum + (metric.expenses || 0), 0)
       const totalMetrics = user.metrics.length
 
       // Generar datos de gráfico para los últimos 7 días

@@ -103,7 +103,7 @@ export default function MiProyectoPage() {
         // Contar observaciones no leídas (simplificado - las de las últimas 24 horas)
         const oneDayAgo = new Date();
         oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-        const recent = userObservations.filter(obs => 
+        const recent = userObservations.filter((obs: Observation) =>
           new Date(obs.createdAt) > oneDayAgo && 
           obs.author.email === 'angelomendiburu@gmail.com'
         ).length;

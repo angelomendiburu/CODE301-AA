@@ -79,10 +79,34 @@ export async function GET() {
     console.log('Users with documents found:', usersWithDocuments.length);
     console.log('Sample data:', usersWithDocuments.slice(0, 2));
 
+    // Definir interfaces para los objetos de usuario y métrica
+    interface Metric {
+      id: string;
+      title: string | null;
+      description: string | null;
+      comment: string | null;
+      imageUrl: string | null;
+      documentUrl: string | null;
+      sales: number | null;
+      expenses: number | null;
+      createdAt: Date;
+    }
+
+    interface User {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      metrics: Metric[];
+      _count: {
+        metrics: number;
+      };
+    }
+
     // Transformar los datos para que tengan la estructura esperada
-    const transformedUsers = usersWithDocuments.map((user: any) => ({
+    const transformedUsers = usersWithDocuments.map((user: User) => ({
       ...user,
-      documents: user.metrics.flatMap((metric: any) => {
+      documents: user.metrics.flatMap((metric: Metric) => {
         const docs = [];
         
         // Función para detectar el tipo de archivo basado en la URL
@@ -152,11 +176,11 @@ export async function GET() {
         
         return docs;
       })
-    })).filter(user => user.documents.length > 0);
+    })).filter((user: { documents: any[] }) => user.documents.length > 0);
 
     return NextResponse.json({ 
       users: transformedUsers,
-      totalDocuments: transformedUsers.reduce((total, user) => total + user.documents.length, 0)
+      totalDocuments: transformedUsers.reduce((total: number, user: { documents: any[] }) => total + user.documents.length, 0)
     });
   } catch (error) {
     console.error('Error fetching metrics documents:', error);

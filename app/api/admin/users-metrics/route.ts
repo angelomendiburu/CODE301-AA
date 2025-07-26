@@ -50,8 +50,32 @@ export async function GET() {
       }
     });
 
+    // Definir interfaces para los objetos de usuario y métrica
+    interface Metric {
+      id: string;
+      title: string | null;
+      comment: string | null;
+      sales: number | null;
+      expenses: number | null;
+      createdAt: Date;
+      imageUrl: string | null;
+      documentUrl: string | null;
+    }
+
+    interface User {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      emailVerified: Date | null;
+      metrics: Metric[];
+      _count: {
+        metrics: number;
+      };
+    }
+
     // Calcular estadísticas para cada usuario
-    const usersWithStats = usersWithMetrics.map(user => {
+    const usersWithStats = usersWithMetrics.map((user: User) => {
       const metrics = user.metrics;
       const totalMetrics = metrics.length;
       
@@ -68,7 +92,7 @@ export async function GET() {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       
-      const recentMetrics = metrics.filter((metric: any) => 
+      const recentMetrics = metrics.filter((metric: Metric) =>
         new Date(metric.createdAt) >= sevenDaysAgo
       );
       
@@ -80,13 +104,13 @@ export async function GET() {
         const dayStart = new Date(date.setHours(0, 0, 0, 0));
         const dayEnd = new Date(date.setHours(23, 59, 59, 999));
         
-        const dayMetrics = recentMetrics.filter((metric: any) => {
+        const dayMetrics = recentMetrics.filter((metric: Metric) => {
           const metricDate = new Date(metric.createdAt);
           return metricDate >= dayStart && metricDate <= dayEnd;
         });
         
-        const daySales = dayMetrics.reduce((sum: number, metric: any) => sum + (metric.sales || 0), 0);
-        const dayExpenses = dayMetrics.reduce((sum: number, metric: any) => sum + (metric.expenses || 0), 0);
+        const daySales = dayMetrics.reduce((sum: number, metric: Metric) => sum + (metric.sales || 0), 0);
+        const dayExpenses = dayMetrics.reduce((sum: number, metric: Metric) => sum + (metric.expenses || 0), 0);
         
         chartData.push({
           date: dayStart.toISOString().split('T')[0],

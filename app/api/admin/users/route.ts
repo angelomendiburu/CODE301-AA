@@ -42,8 +42,20 @@ export async function GET() {
       }
     });
 
+    // Definir la interfaz para el objeto de usuario
+    interface User {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      role: string;
+      _count: {
+        observations: number;
+      };
+    }
+
     // Agregar status simulado y fecha de creación simulada para cada usuario
-    const usersWithStatus = users.map(user => ({
+    const usersWithStatus = users.map((user: User) => ({
       ...user,
       status: 'active' as const, // Por ahora todos están activos
       createdAt: new Date().toISOString() // Fecha simulada

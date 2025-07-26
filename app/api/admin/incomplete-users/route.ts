@@ -21,11 +21,22 @@ export async function GET() {
       }
     });
 
+    // Definir la interfaz para el objeto de usuario
+    interface User {
+      id: string;
+      name: string | null;
+      email: string | null;
+      role: string;
+      emailVerified: Date | null;
+      image: string | null;
+      metrics: { id: string }[];
+    }
+
     // Calcular usuarios incompletos
     const incompleteUsers = await Promise.all(
       users
-        .filter(user => user.role !== 'admin') // Excluir administradores
-        .map(async (user) => {
+        .filter((user: User) => user.role !== 'admin') // Excluir administradores
+        .map(async (user: User) => {
           // Verificar si tiene proyecto registrado (buscar en data/projects o registrations)
           let hasProject = false;
           try {

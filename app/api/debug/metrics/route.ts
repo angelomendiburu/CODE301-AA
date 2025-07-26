@@ -52,12 +52,20 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Definir la interfaz para el objeto de usuario
+    interface User {
+      id: string;
+      email: string | null;
+      name: string | null;
+      metrics: any[];
+    }
+
     return NextResponse.json({
       totalUsers: users.length,
       totalMetrics: allMetrics.length,
       users: users,
       allMetrics: allMetrics,
-      metricsGrouped: metricsGrouped.map(user => ({
+      metricsGrouped: metricsGrouped.map((user: User) => ({
         id: user.id,
         email: user.email,
         name: user.name,
