@@ -1,13 +1,26 @@
+import { getToken } from "next-auth/jwt"
+import { NextRequest, NextResponse } from "next/server"
 
-// Middleware deshabilitado para exposición - Sin restricciones de acceso
-// Todas las rutas son accesibles directamente sin validaciones
+export default async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
-export default function middleware() {
-  // No aplica ninguna restricción - permite el paso libre a todas las rutas
-  return;
+  const { pathname } = req.nextUrl
+
+  if (token && token.role === "admin") {
+    if (pathname === "/") {
+      return NextResponse.redirect(new URL("/admin/metrics", req.url))
+    }
+  }
+
+  if (token && token.role !== "admin") {
+    if (pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/mi-proyecto", req.url))
+    }
+  }
+
+  return NextResponse.next()
 }
 
-// Configuración opcional: aplicar a todas las rutas pero sin hacer nada
 export const config = {
   matcher: [
     /*
