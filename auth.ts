@@ -64,17 +64,5 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // Si la URL ya es una ruta interna, usarla
-      if (url.startsWith(baseUrl)) {
-        const path = url.substring(baseUrl.length);
-        if (path === '/api/auth/signin' || path === '/api/auth/callback/google') {
-          // Por defecto redirigir a mi-proyecto
-          // La lógica específica del admin se maneja en middleware.ts
-          return `${baseUrl}/mi-proyecto`;
-        }
-      }
-      return url;
-    },
   },
 }
