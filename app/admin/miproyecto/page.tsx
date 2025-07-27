@@ -103,7 +103,7 @@ function MiProyectoContent() {
       
       let response;
       
-      if (userId && session?.user?.email === 'angelomendiburu@gmail.com') {
+      if (userId && session?.user?.role === 'admin') {
         // Admin viendo métricas de un usuario específico
         response = await fetch(`/api/admin/user-metrics/${userId}`);
         
@@ -278,7 +278,7 @@ function MiProyectoContent() {
             <h2 className="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em]">Mi Proyecto</h2>
             
             {/* Mostrar información del usuario que se está viendo (para admin) */}
-            {viewingUser && session?.user?.email === 'angelomendiburu@gmail.com' && (
+            {viewingUser && session?.user?.role === 'admin' && (
               <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -295,7 +295,7 @@ function MiProyectoContent() {
           {session && (
             <div className="flex items-center gap-4">
               {/* Solo mostrar el botón de admin si es administrador */}
-              {session.user?.email === 'angelomendiburu@gmail.com' && (
+              {session.user?.role === 'admin' && (
                 <div className="flex items-center gap-2">
                   <a
                     href="/admin/metrics"
@@ -317,7 +317,7 @@ function MiProyectoContent() {
                     {session.user?.name || 'Usuario'}
                   </p>
                   <p className="text-neutral-500 text-xs">
-                    {session.user?.email === 'angelomendiburu@gmail.com' ? 'Admin - ' : ''}{session.user?.email}
+                    {session.user?.role === 'admin' ? 'Admin - ' : ''}{session.user?.email}
                   </p>
                 </div>
               </div>

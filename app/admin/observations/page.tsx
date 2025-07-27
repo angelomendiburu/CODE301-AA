@@ -81,7 +81,7 @@ export default function AdminObservationsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (!session || session.user?.email !== 'angelomendiburu@gmail.com') {
+    if (!session || session.user?.role !== 'admin') {
       router.push('/');
       return;
     }
@@ -171,7 +171,7 @@ export default function AdminObservationsPage() {
     return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
   }
 
-  if (!session || session.user?.email !== 'angelomendiburu@gmail.com') {
+  if (!session || session.user?.role !== 'admin') {
     return <div className="flex items-center justify-center min-h-screen">Acceso denegado</div>;
   }
 

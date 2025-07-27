@@ -26,11 +26,11 @@ export default function AdminUsuarios() {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
-    if (session && session.user?.email !== 'angelomendiburu@gmail.com') {
+    if (session && session.user?.role !== 'admin') {
       router.push('/');
       return;
     }
-    if (session && session.user?.email === 'angelomendiburu@gmail.com') {
+    if (session && session.user?.role === 'admin') {
       fetchUsers();
     }
   }, [session, router]);
@@ -91,7 +91,7 @@ export default function AdminUsuarios() {
     );
   }
 
-  if (session.user?.email !== 'angelomendiburu@gmail.com') {
+  if (session.user?.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-white">No tienes permisos para acceder a esta página.</div>

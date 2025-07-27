@@ -1,6 +1,8 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface IncompleteRegistration {
@@ -60,6 +62,8 @@ interface CompleteRegistration {
 }
 
 export default function AdminRegisterPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [incompleteRegistrations, setIncompleteRegistrations] = useState<IncompleteRegistration[]>([]);
   const [completeRegistrations, setCompleteRegistrations] = useState<CompleteRegistration[]>([]);
   const [activeTab, setActiveTab] = useState<'incomplete' | 'pending' | 'approved' | 'rejected'>('pending');
@@ -157,6 +161,17 @@ export default function AdminRegisterPage() {
   useEffect(() => {
     loadRegistrations();
   }, []);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'admin') {
+      router.push('/');
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading' || !session || session.user.role !== 'admin') {
+    return <div>Cargando...</div>;
+  }
 
   const loadRegistrations = async () => {
     try {

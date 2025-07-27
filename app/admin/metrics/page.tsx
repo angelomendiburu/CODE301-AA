@@ -50,7 +50,7 @@ export default function AdminMetrics() {
 
   // Verificar que es admin
   useEffect(() => {
-    if (session && session.user?.email !== 'angelomendiburu@gmail.com') {
+    if (session && session.user?.role !== 'admin') {
       router.push('/mi-proyecto');
     }
   }, [session, router]);

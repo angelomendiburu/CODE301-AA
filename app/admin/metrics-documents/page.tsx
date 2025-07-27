@@ -76,11 +76,11 @@ export default function AdminMetricsDocuments() {
   };
 
   useEffect(() => {
-    if (session && session.user?.email !== 'angelomendiburu@gmail.com') {
+    if (session && session.user?.role !== 'admin') {
       router.push('/');
       return;
     }
-    if (session && session.user?.email === 'angelomendiburu@gmail.com') {
+    if (session && session.user?.role === 'admin') {
       fetchUsersWithDocuments();
     }
   }, [session, router]);
@@ -124,7 +124,7 @@ export default function AdminMetricsDocuments() {
     return '📎';
   };
 
-  if (!session || session.user?.email !== 'angelomendiburu@gmail.com') {
+  if (!session || session.user?.role !== 'admin') {
     return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
   }
 

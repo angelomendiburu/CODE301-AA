@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import AdminSidebar from "@/components/AdminSidebar";
 
 export default function CreateUserPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -51,6 +55,17 @@ export default function CreateUserPage() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'admin') {
+      router.push('/');
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading' || !session || session.user.role !== 'admin') {
+    return <div>Cargando...</div>;
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">

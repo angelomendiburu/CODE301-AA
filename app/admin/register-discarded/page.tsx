@@ -1,6 +1,24 @@
 ﻿'use client';
 
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 export default function AdminRegisterDiscardedPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'admin') {
+      router.push('/');
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading' || !session || session.user.role !== 'admin') {
+    return <div>Cargando...</div>;
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">

@@ -98,7 +98,7 @@ export default function AdminActivityPage() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (!session || session.user?.email !== 'angelomendiburu@gmail.com') {
+    if (!session || session.user?.role !== 'admin') {
       router.push('/');
       return;
     }

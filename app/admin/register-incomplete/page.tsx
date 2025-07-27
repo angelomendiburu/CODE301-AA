@@ -1,6 +1,8 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/AdminSidebar';
 import Image from 'next/image';
 
@@ -17,13 +19,20 @@ interface IncompleteUser {
 }
 
 export default function AdminRegisterIncompletePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [incompleteUsers, setIncompleteUsers] = useState<IncompleteUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIncompleteUsers();
-  }, []);
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'admin') {
+      router.push('/');
+    } else {
+      fetchIncompleteUsers();
+    }
+  }, [session, status, router]);
 
   const fetchIncompleteUsers = async () => {
     try {
