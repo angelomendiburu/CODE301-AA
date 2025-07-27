@@ -53,9 +53,17 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = user.role
       }
-      return token;
+      if (token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+        })
+        if (dbUser) {
+          token.role = dbUser.role
+        }
+      }
+      return token
     },
     async session({ session, token }) {
       if (session?.user) {
