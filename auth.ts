@@ -51,6 +51,20 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user }) {
+      if (user.email === 'admin123@gmail.com' || user.email === 'admin@example.com') {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+        if (dbUser && dbUser.role !== 'admin') {
+          await prisma.user.update({
+            where: { email: user.email },
+            data: { role: 'admin' },
+          });
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role

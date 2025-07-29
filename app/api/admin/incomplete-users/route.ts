@@ -40,7 +40,7 @@ export async function GET() {
           // Verificar si tiene proyecto registrado (buscar en data/projects o registrations)
           let hasProject = false;
           try {
-            const registrationResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/registration-status`, {
+            const registrationResponse = await fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : process.env.NEXTAUTH_URL}/api/registration-status`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: user.email })
